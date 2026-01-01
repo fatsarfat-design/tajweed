@@ -4,1194 +4,721 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Таджвид — учебное приложение</title>
-<link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#0b1220"/>
+<link rel="manifest" href="manifest.webmanifest"/>
 <style>
-:root{
-  color-scheme:dark;
-  --bg:#070b14;
-  --panel:#0f1a2f;
-  --panel2:#0b1220;
-  --border:#243042;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --gold:#d6b25e;
-  --accent:#3b82f6;
-  --radius:18px;
-  --fs:16px;
-  --arabic-size:1.25em;
-  --arabic-font:"Amiri","Scheherazade New","Noto Naskh Arabic","Noto Sans Arabic","Arial";
-  --ui-font:system-ui,Segoe UI,Roboto,Arial;
+:root {
+  --bg0:#050812; --bg1:#0b1220;
+  --card: rgba(15, 27, 50, .72);
+  --card2: rgba(10, 18, 34, .72);
+  --text:#e8eefc; --muted: rgba(232,238,252,.72);
+  --border: rgba(255,255,255,.10);
+  --accent:#d4b26a;
+  --shadow: 0 20px 70px rgba(0,0,0,.45);
+  --radius: 22px;
+  --base: 16px;
+  --arabic: 22px;
+  --arabic-font: "Noto Naskh Arabic","Amiri","Scheherazade New",Arial,sans-serif;
+  --ui-font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
 }
 html,body{height:100%}
 body{
-  margin:0;
-  font:var(--fs)/1.6 var(--ui-font);
-  background:
-    radial-gradient(900px 600px at 20% -10%, rgba(214,178,94,.18), transparent 60%),
-    radial-gradient(900px 600px at 90% 10%, rgba(59,130,246,.14), transparent 55%),
-    radial-gradient(800px 700px at 40% 120%, rgba(214,178,94,.10), transparent 60%),
-    var(--bg);
-  color:var(--text);
+  margin:0; font-family:var(--ui-font); color:var(--text);
+  background: radial-gradient(1000px 700px at 20% -10%, rgba(212,178,106,.15), transparent 55%),
+            radial-gradient(900px 700px at 110% 10%, rgba(120,160,255,.18), transparent 55%),
+            linear-gradient(180deg, var(--bg0), var(--bg1));
+  overflow-x:hidden; font-size:var(--base);
 }
-/* subtle arabesque pattern */
-body:before{
-  content:"";
-  position:fixed; inset:0;
-  pointer-events:none;
-  opacity:.08;
+body.bg-stars::before{
+  content:""; position:fixed; inset:0;
+  background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 28px 28px; opacity:.35; pointer-events:none;
+}
+body.bg-arabesque::before{
+  content:""; position:fixed; inset:0;
   background-image:
-    radial-gradient(circle at 25px 25px, rgba(214,178,94,.9) 2px, transparent 3px),
-    radial-gradient(circle at 75px 75px, rgba(214,178,94,.7) 1.5px, transparent 3px);
-  background-size:100px 100px;
-  mix-blend-mode:screen;
+    radial-gradient(rgba(212,178,106,.12) 1px, transparent 1px),
+    radial-gradient(rgba(120,160,255,.10) 1px, transparent 1px);
+  background-size: 22px 22px, 34px 34px;
+  background-position: 0 0, 10px 16px;
+  opacity:.35; pointer-events:none;
 }
-header{
-  position:sticky; top:0; z-index:10;
-  background:rgba(7,11,20,.86);
-  backdrop-filter: blur(10px);
-  border-bottom:1px solid rgba(36,48,66,.85);
+body.bg-paper{background: linear-gradient(180deg, #201a10, #0b1220);}
+body.bg-paper::before{
+  content:""; position:fixed; inset:0;
+  background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 20px 20px; opacity:.25; pointer-events:none;
 }
-.wrap{max-width:1080px;margin:0 auto;padding:16px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-h1{margin:0;font-size:20px;letter-spacing:.2px}
-h2,h3{margin:0 0 10px}
-.muted{color:var(--muted)}
-.small{font-size:12px}
-.right{margin-left:auto}
-.pill{padding:5px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(15,26,47,.35)}
-.card{
-  background:linear-gradient(180deg, rgba(15,26,47,.92), rgba(11,18,32,.92));
-  border:1px solid rgba(36,48,66,.9);
-  border-radius:var(--radius);
-  padding:14px;
-  margin:12px 0;
-  box-shadow:0 14px 30px rgba(0,0,0,.22);
-}
-.hr{height:1px;background:rgba(36,48,66,.9);margin:12px 0}
-button{
-  border:1px solid rgba(43,58,82,.95);
-  background:rgba(17,28,51,.85);
-  color:var(--text);
-  border-radius:14px;
-  padding:10px 12px;
-  cursor:pointer;
-}
-button.primary{background:rgba(31,42,68,.9);border-color:rgba(59,130,246,.65)}
-button.gold{background:rgba(214,178,94,.12);border-color:rgba(214,178,94,.55)}
-button.ghost{background:transparent}
-input,select{
-  width:100%; box-sizing:border-box;
-  border:1px solid rgba(36,48,66,.95);
-  background:rgba(11,18,32,.85);
-  color:var(--text);
-  border-radius:14px;
-  padding:10px 12px;
-}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:900px){.grid2{grid-template-columns:1fr}}
-.list{display:grid;gap:10px}
-.tag{
-  display:inline-block;
-  font-size:12px;
-  color:#d1d5db;
-  border:1px solid rgba(36,48,66,.95);
-  border-radius:999px;
-  padding:3px 10px;
-  margin-right:6px;
-  margin-top:6px;
-  background:rgba(11,18,32,.65);
-}
-/* Diagrams */
-.diagram{
-  background:rgba(11,18,32,.8);
-  border:1px solid rgba(36,48,66,.95);
-  border-radius:16px;
-  padding:12px;
-  margin:10px 0;
-}
-.diagram .title{font-weight:900;margin-bottom:8px;color:#f3f4f6}
-.flow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.box{
-  background:rgba(17,28,51,.9);
-  border:1px solid rgba(36,48,66,.95);
-  border-radius:14px;
-  padding:10px 12px;
-  min-width:200px;
-}
-.arrow{opacity:.85;color:rgba(214,178,94,.9)}
-/* Arabic examples */
-.ar{
-  font-family:var(--arabic-font);
-  font-size:var(--arabic-size);
-  direction:rtl;
-  unicode-bidi:isolate;
-  letter-spacing:.2px;
-}
-.arline{
-  padding:10px 12px;
-  border:1px dashed rgba(214,178,94,.45);
-  border-radius:14px;
-  background:rgba(214,178,94,.06);
-  margin:8px 0;
-}
-.hl{
-  color:rgba(214,178,94,1);
-  font-weight:900;
-  text-shadow:0 0 14px rgba(214,178,94,.25);
-}
-/* Quiz */
-.q{
-  background:rgba(11,18,32,.85);
-  border:1px solid rgba(36,48,66,.95);
-  border-radius:16px;
-  padding:12px;
-  margin:10px 0;
-}
-.opt{display:flex;align-items:center;gap:10px;margin:8px 0}
-.opt input{transform:scale(1.15)}
-.good{color:#34d399}
-.bad{color:#fb7185}
-.notice{padding:10px 12px;border-radius:14px;border:1px solid rgba(36,48,66,.95);background:rgba(11,18,32,.85)}
-kbd{border:1px solid rgba(36,48,66,.95);border-bottom-width:2px;border-radius:8px;padding:2px 7px;background:rgba(11,18,32,.75);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;font-size:12px}
-/* Settings drawer */
-#settingsDrawer{
-  position:fixed; top:0; right:0; height:100%; width:min(420px, 92vw);
-  transform:translateX(105%);
-  transition:transform .22s ease;
-  z-index:50;
-  background:rgba(7,11,20,.92);
-  border-left:1px solid rgba(36,48,66,.95);
-  backdrop-filter: blur(12px);
-}
-#settingsDrawer.open{transform:translateX(0)}
-
-textarea{
-  width:100%;
-  min-height:120px;
-  resize:vertical;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid var(--bd);
-  background: rgba(255,255,255,0.04);
-  color: var(--fg);
-  outline:none;
-}
-textarea:focus{border-color: rgba(232, 200, 120, 0.65); box-shadow: 0 0 0 4px rgba(232,200,120,0.12);}
-.opt{width:100%; justify-content:flex-start; gap:10px;}
-.opt span{flex:1; text-align:left;}
-
-:root{
-  --bg-img: none;
-  --bg-repeat: repeat;
-  --bg-size: auto;
-}
-body::after{
-  content:"";
-  position: fixed;
-  inset: 0;
-  pointer-events:none;
-  background-image: var(--bg-img);
-  background-repeat: var(--bg-repeat);
-  background-size: var(--bg-size);
-  opacity: 0.20;
-  filter: saturate(1.05) contrast(1.02);
-  z-index: 0;
-}
-.app{position:relative; z-index:1;}
+.wrap{max-width:1150px;margin:0 auto;padding:28px 16px 70px;position:relative}
+header{display:flex;gap:14px;align-items:center;justify-content:space-between;margin:6px 0 18px}
+.title h1{margin:0;font-size:26px;letter-spacing:.2px}
+.title .sub{margin-top:6px;color:var(--muted);font-size:13px}
+.top-right{display:flex;gap:10px;align-items:center}
+.pill{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(0,0,0,.20);box-shadow:0 10px 30px rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
+.btn{appearance:none;border:1px solid rgba(212,178,106,.45);background:rgba(212,178,106,.08);color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer;transition:transform .06s ease, background .2s ease}
+.btn:hover{background:rgba(212,178,106,.14)}
+.btn:active{transform:translateY(1px)}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);background:linear-gradient(180deg,var(--card),var(--card2));border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;position:relative;overflow:hidden}
+.card h2{margin:0 0 10px;font-size:20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.input,select{width:100%;background:rgba(0,0,0,.20);border:1px solid var(--border);border-radius:14px;padding:12px 12px;color:var(--text);outline:none}
+select{cursor:pointer}
+.hint{color:var(--muted);font-size:13px;margin-top:8px}
+.toc{display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto;padding-right:6px}
+.toc::-webkit-scrollbar{width:8px}
+.toc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
+.toc-item{display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.12);padding:12px;border-radius:16px;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.toc-item:hover{background:rgba(0,0,0,.18);border-color:rgba(212,178,106,.25)}
+.toc-item.active{border-color:rgba(212,178,106,.55);background:rgba(212,178,106,.10)}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);background:rgba(0,0,0,.20);font-size:12px;color:var(--muted);flex:0 0 auto}
+.toc-meta{color:var(--muted);font-size:12px;margin-top:4px}
+.lesson-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nav .btn{padding:8px 12px;border-color:rgba(255,255,255,.18);background:rgba(0,0,0,.18)}
+.nav .btn:hover{background:rgba(0,0,0,.24)}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+.content{line-height:1.6}
+.content h3{margin:16px 0 8px;font-size:16px}
+.content ul{margin:8px 0 8px 18px}
+.arabic{font-family:var(--arabic-font);font-size:var(--arabic);direction:rtl;unicode-bidi:plaintext}
+.ex{border-left:3px solid rgba(212,178,106,.55);padding:10px 12px;margin:10px 0;background:rgba(0,0,0,.16);border-radius:14px}
+.ex .label{color:var(--muted);font-size:12px;margin-bottom:6px}
+.kpi{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.16);font-size:12px;color:var(--muted)}
+.quiz{margin-top:14px;border:1px solid rgba(255,255,255,.10);border-radius:18px;background:rgba(0,0,0,.16);padding:14px}
+.quiz h3{margin:0 0 8px}
+.q{margin-top:10px;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px;background:rgba(0,0,0,.12)}
+.q .qtitle{margin:0 0 8px;font-weight:600}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.10);cursor:pointer;user-select:none}
+.opt:hover{border-color:rgba(212,178,106,.35)}
+.opt input{margin-top:2px}
+.quiz-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.msg{color:var(--muted);font-size:13px}
+.msg.ok{color:rgba(61,220,151,.95)}
+.msg.bad{color:rgba(255,90,107,.95)}
+textarea{width:100%;min-height:120px;resize:vertical;background:rgba(0,0,0,.20);border:1px solid var(--border);border-radius:16px;padding:12px;color:var(--text);outline:none;font-family:var(--ui-font)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:999}
+.modal{width:min(860px,100%);max-height:85vh;overflow:auto;border-radius:24px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg, rgba(10,18,34,.96), rgba(5,8,18,.96));box-shadow:0 30px 90px rgba(0,0,0,.6);padding:18px;position:relative}
+.modal h2{margin:0 0 10px}
+.close{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25);color:var(--text);cursor:pointer}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:960px){.grid{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+.small{font-size:13px;color:var(--muted)}
+.file{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;font-size:12px}
 </style>
 </head>
-<body>
+<body class="bg-stars">
+<div class="wrap">
 <header>
-  <div class="wrap row" style="justify-content:space-between">
-    <div>
-      <h1>Таджвид — учебное приложение</h1>
-      <div class="muted small">Оглавление · примеры · схемы · тесты · экзамены · тренажёр</div>
-    </div>
-    <div class="row">
-      <span class="pill" id="progressPill">0/0</span>
-      <button class="gold" id="settingsBtn">Настройки</button>
-      <button id="installBtn" class="primary" style="display:none">Установить</button>
-    </div>
+  <div class="title">
+    <h1>Таджвид — учебное приложение</h1>
+    <div class="sub">Оглавление · примеры · схемы · тесты · экзамены · тренажёр · заметки</div>
+  </div>
+  <div class="top-right">
+    <div class="pill"><span id="progress">0/0</span></div>
+    <button class="btn" id="openSettings">Настройки</button>
   </div>
 </header>
 
-<main class="wrap">
-  <div id="viewHome">
-    <div class="card">
-      <div class="grid2">
-        <div>
-          <div class="muted small">Поиск по урокам</div>
-          <input id="q" placeholder="сыфаты, شدة, мадд, вакф…" />
-        </div>
-        <div>
-          <div class="muted small">Фильтр</div>
-          <select id="blockFilter">
-            <option value="all">Все</option>
-            <option value="b1">Блок 1: Махраджи</option>
-            <option value="b2">Блок 2: Сыфаты</option>
-            <option value="b3">Блок 3: Нун ساкина</option>
-            <option value="b4">Блок 4: Мим ساкина</option>
-            <option value="b5">Блок 5: Мадды</option>
-            <option value="b6">Блок 6: Вакф и ибтида</option>
-            <option value="trainer">Тренажёр</option>
-            <option value="exam">Экзамены</option>
-          </select>
-        </div>
+<div class="grid">
+  <div class="card">
+    <div class="two">
+      <div>
+        <div class="small">Поиск по урокам</div>
+        <input class="input" id="q" placeholder="сыфаты, мадд, вакф..." autocomplete="off"/>
       </div>
-      <div class="hr"></div>
-      <div class="muted small">
-        Подсказка: для перехода между темами в уроке используй кнопки <kbd>←</kbd> / <kbd>→</kbd> (или «Пред.» / «След.»).
+      <div>
+        <div class="small">Фильтр</div>
+        <select id="filter">
+          <option value="all">Все</option>
+          <option value="b1">Блок 1: Махраджи</option>
+          <option value="b2">Блок 2: Сыфаты</option>
+          <option value="b3">Блок 3: Нун и тануин</option>
+          <option value="b4">Блок 4: Мим с сукуном</option>
+          <option value="b5">Блок 5: Мадды</option>
+          <option value="b6">Блок 6: Вакф и ибтида</option>
+          <option value="trainer">Тренажёр</option>
+          <option value="exams">Экзамены</option>
+        </select>
       </div>
     </div>
-
-    <div class="card">
-      <h2>Оглавление</h2>
-      <div class="muted">Сейчас мы обновили Блок 2 (Сыфаты): правильная терминология + арабские примеры + подробнее.</div>
-      <div class="hr"></div>
-      <div id="lessonList" class="list"></div>
-    </div>
+    <div class="hint">Подсказка: для перехода между темами в уроке используй кнопки <b>←</b>/<b>→</b> (или «Пред.»/«След.»).</div>
+    <div class="hr"></div>
+    <div class="toc" id="toc"></div>
   </div>
 
-  <div id="viewLesson" style="display:none">
-    <div class="card">
-      <div class="row">
-        <button onclick="goHome()">← Оглавление</button>
-        <button class="ghost" id="prevBtn">← Пред.</button>
-        <button class="ghost" id="nextBtn">След. →</button>
-        <span class="right"></span>
-        <button id="btnDone" class="primary"></button>
+  <div class="card" id="lessonCard">
+    <div class="lesson-head">
+      <div><div class="kpi" id="lessonChips"></div></div>
+      <div class="nav">
+        <button class="btn" id="btnHome">Оглавление</button>
+        <button class="btn" id="btnPrev">← Пред.</button>
+        <button class="btn" id="btnNext">След. →</button>
       </div>
     </div>
+    <div class="hr"></div>
+    <div class="content" id="content"></div>
 
-    <div class="card">
-      <h2 id="lessonTitle"></h2>
-      <div class="muted small" id="lessonBadges"></div>
-      <div class="hr"></div>
-      <div id="lessonText" style="white-space:pre-wrap"></div>
-      <div id="lessonExtras"></div>
-      <div id="lessonDiagram"></div>
-
-      <div class="hr"></div>
-      <div class="muted" style="margin-bottom:8px">Заметки (сохраняются на этом устройстве)</div>
-      <textarea id="notesArea" placeholder="Пиши свои заметки по этой теме…"></textarea>
-      <div class="row mt">
-        <button class="btn" id="clearNotesBtn">Очистить</button>
-        <div class="right muted" id="notesStatus">Сохранено</div>
+    <div class="hr"></div>
+    <div>
+      <h2 style="margin:0 0 10px; font-size:18px">Заметки</h2>
+      <div class="small">Сохраняются на этом устройстве (браузер).</div>
+      <div style="margin-top:10px">
+        <textarea id="notes" placeholder="Пиши сюда свои заметки по теме…"></textarea>
+        <div class="quiz-actions">
+          <button class="btn" id="saveNotes">Сохранить</button>
+          <button class="btn" id="clearNotes" style="border-color: rgba(255,255,255,.18); background: rgba(0,0,0,.18);">Очистить</button>
+          <span class="msg" id="notesMsg"></span>
+        </div>
       </div>
     </div>
-
-    <div class="card" id="quizBlock" style="display:none"></div>
   </div>
-</main>
+</div>
+</div>
 
-<!-- Settings Drawer -->
-<div id="settingsDrawer">
-  <div class="wrap">
-    <div class="row" style="justify-content:space-between">
-      <h2 style="margin:0">Настройки</h2>
-      <button class="ghost" id="closeSettings">✕</button>
-    </div>
-    <div class="muted small">Настройки сохраняются на этом устройстве.</div>
+<div class="modal-backdrop" id="settingsBackdrop" aria-hidden="true">
+  <div class="modal">
+    <button class="close" id="closeSettings" title="Закрыть">✕</button>
+    <h2>Настройки</h2>
+    <div class="small">Настройки сохраняются на этом устройстве. Версия: <span class="file">v20</span></div>
+
     <div class="hr"></div>
 
-    <div class="card" style="margin:0 0 12px 0">
-      <h3>Размер текста</h3>
-      <div class="muted small">Основной размер</div>
-      <input id="fsRange" type="range" min="14" max="22" step="1"/>
-      <div class="muted small">Текущий: <span id="fsVal"></span> px</div>
-      <div class="hr"></div>
-      <div class="muted small">Размер арабского текста</div>
-      <input id="arRange" type="range" min="1.05" max="1.85" step="0.05"/>
-      <div class="muted small">Текущий: <span id="arVal"></span></div>
-    </div>
+    <div class="two">
+      <div class="card" style="box-shadow:none">
+        <h2 style="font-size:16px; margin:0 0 10px">Размер текста</h2>
+        <div class="small">Основной размер: <span id="basePx"></span>px</div>
+        <input type="range" id="baseRange" min="14" max="22" step="1"/>
+        <div style="height:10px"></div>
+        <div class="small">Арабский текст: <span id="arabicPx"></span>px</div>
+        <input type="range" id="arabicRange" min="18" max="36" step="1"/>
+      </div>
 
-    <div class="card" style="margin:0 0 12px 0">
-      <h3>Шрифт арабского</h3>
-      <div class="muted small">Выбирай тот, который лучше смотрится на твоём устройстве</div>
-      <select id="arFontSel">
-        <option value='"Amiri","Scheherazade New","Noto Naskh Arabic","Noto Sans Arabic","Arial"'>Amiri / Scheherazade / Noto (рекоменд.)</option>
-        <option value='"Noto Naskh Arabic","Noto Sans Arabic","Arial"'>Noto Naskh Arabic</option>
-        <option value='"Scheherazade New","Noto Naskh Arabic","Arial"'>Scheherazade New</option>
-        <option value='"Arial"'>Arial (если других нет)</option>
-      </select>
-    </div>
-
-    
-    <div class="card" style="margin:0 0 12px 0">
-      <h3>Фон и оформление</h3>
-      <div class="muted small">Можно выбрать фон или поставить свою картинку</div>
-      <select id="bgSel">
-        <option value="stars">Звёздный узор (по умолчанию)</option>
-        <option value="arabesque">Арабески (узор)</option>
-        <option value="paper">Тёплая бумага</option>
-        <option value="custom">Своя картинка по ссылке</option>
-      </select>
-      <div class="mt" id="bgUrlWrap" style="display:none">
-        <div class="muted small">Ссылка на картинку (https://...)</div>
-        <input id="bgUrl" type="text" placeholder="Вставь ссылку на изображение"/>
+      <div class="card" style="box-shadow:none">
+        <h2 style="font-size:16px; margin:0 0 10px">Шрифт арабского</h2>
+        <div class="small">Выбирай тот, который лучше смотрится на твоём устройстве.</div>
+        <div style="height:10px"></div>
+        <select id="arabicFont">
+          <option value='"Noto Naskh Arabic","Amiri","Scheherazade New",Arial,sans-serif'>Noto (рекоменд.)</option>
+          <option value='"Amiri","Noto Naskh Arabic","Scheherazade New",Arial,sans-serif'>Amiri</option>
+          <option value='"Scheherazade New","Noto Naskh Arabic","Amiri",Arial,sans-serif'>Scheherazade</option>
+          <option value='Arial,sans-serif'>Arial (если других нет)</option>
+        </select>
+        <div class="hr"></div>
+        <div class="arabic" style="margin-top:6px">ٱلْحَمْدُ لِلّٰهِ رَبِّ ٱلْعَالَمِينَ</div>
       </div>
     </div>
 
-    <div class="card" style="margin:0 0 12px 0">
-      <h3>Заметки</h3>
-      <div class="muted small">Заметки хранятся в браузере на этом устройстве</div>
-      <div class="row mt">
-        <button class="btn" id="exportNotes">Экспорт заметок (JSON)</button>
-        <button class="btn" id="clearAllNotes">Очистить все</button>
+    <div class="hr"></div>
+
+    <div class="two">
+      <div class="card" style="box-shadow:none">
+        <h2 style="font-size:16px; margin:0 0 10px">Фон и оформление</h2>
+        <div class="small">Можно выбрать фон или поставить свою картинку.</div>
+        <div style="height:10px"></div>
+        <select id="bgMode">
+          <option value="stars">Звёздный узор (по умолчанию)</option>
+          <option value="arabesque">Арабески (узор)</option>
+          <option value="paper">Тёплая бумага</option>
+          <option value="custom">Своя картинка по ссылке</option>
+        </select>
+        <div style="height:10px"></div>
+        <div class="small">Ссылка на картинку (https://...)</div>
+        <input class="input" id="bgUrl" placeholder="https://example.com/my-background.jpg"/>
+        <div class="hint">Совет: используй картинки без текста, чтобы не мешало чтению.</div>
       </div>
-      <div class="muted small mt" id="notesCount">—</div>
+
+      <div class="card" style="box-shadow:none">
+        <h2 style="font-size:16px; margin:0 0 10px">Заметки</h2>
+        <div class="small">Экспорт/импорт заметок (если захочешь перенести на другое устройство).</div>
+        <div class="quiz-actions" style="margin-top:12px">
+          <button class="btn" id="exportNotes">Экспорт (JSON)</button>
+          <button class="btn" id="importNotes">Импорт (JSON)</button>
+          <button class="btn" id="clearAllNotes" style="border-color: rgba(255,255,255,.18); background: rgba(0,0,0,.18);">Очистить все</button>
+        </div>
+        <div class="hint">Импорт попросит вставить текст JSON.</div>
+      </div>
     </div>
-    <div class="card" style="margin:0">
-      <h3>Быстрые кнопки</h3>
-      <div class="row">
-        <button class="primary" id="resetSettings">Сбросить настройки</button>
-      </div>
+
+    <div class="hr"></div>
+    <div class="quiz-actions">
+      <button class="btn" id="resetAll" style="border-color: rgba(255,255,255,.18); background: rgba(0,0,0,.18);">Сбросить настройки</button>
+      <span class="msg" id="settingsMsg"></span>
     </div>
   </div>
 </div>
 
 <script>
-// ==========================
-// Content
-// ==========================
-const lessons = [
-  {
-    id: "b1_01",
-    block: "b1",
-    order: 1,
-    title: "Махрадж: что это и зачем",
-    tags: ["махрадж", "место", "буква"],
-    text: `Махрадж (مخرج) — место образования (выхода) звука буквы.
+// ===== DATA =====
+const LESSONS = [
+  {id:"home", block:"home", title:"Оглавление", tags:["Навигация"], html: `
+    <h2>Оглавление</h2>
+    <p>Это учебное приложение по таджвиду: темы → примеры → мини‑тесты → экзамен блока.</p>
+    <div class="ex"><div class="label">Совет</div>
+      <div>Начни с <b>Блок 1</b> (махраджи), затем <b>Блок 2</b> (сыфаты), потом правила <b>нун/тануина</b>, <b>мим</b>, <b>мадды</b>, и в конце <b>вакф и ибтида</b>.</div>
+    </div>
+    <p class="small">Если что-то пропало: «Настройки» → «Сбросить настройки» и обнови страницу (Ctrl+F5).</p>
+  `, quiz:null},
 
-Чтобы буква звучала правильно, важно:
-1) где образуется звук (махрадж)
-2) как он произносится — его свойства (сыфаты).
+  {id:"b1-1", block:"b1", title:"Махрадж — что это?", tags:["Блок 1","Основы"], html: `
+    <h2>Махрадж — что это?</h2>
+    <p><b>Махрадж</b> — место образования звука буквы (точка выхода).</p>
+    <div class="ex"><div class="label">Запомнить</div>
+      <ul>
+        <li>Буква = <b>махрадж</b> (место) + <b>сыфаты</b> (качества)</li>
+        <li>Если махрадж перепутан → буква становится другой</li>
+      </ul>
+    </div>
+    <h3>Главные зоны махраджей</h3>
+    <ul>
+      <li>Горло (الحلق)</li>
+      <li>Язык (اللسان)</li>
+      <li>Губы (الشفتان)</li>
+      <li>Носовая полость (الخيشوم) — для гунны</li>
+    </ul>
+  `, quiz:{title:"Мини‑тест", questions:[{q:"Махрадж — это…", options:["качество буквы","место образования звука","вид мадда","правило вакфа"], answer:1}] }},
 
-Зоны махраджей: полость рта (الجوف), горло (الحلق), язык (اللسان), губы (الشفتان), носовая полость (الخيشوم).`,
-    diagram: {"title": "Карта махраджей (схема)", "steps": [{"k": "الجوف", "v": "полость рта — буквы мадда"}, {"k": "الحلق", "v": "горло — 6 букв"}, {"k": "اللسان", "v": "язык — большинство букв"}, {"k": "الشفتان/الخيشوم", "v": "губы/нос — часть правил и гунна"}]},
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "قَالَ", "note": "Мадд (ا) — полость рта (الجوف)."}, {"arabic": "أَحَدٌ", "note": "Хамза — горло."}]}],
-    quiz: [{"q": "Махрадж — это…", "a": ["качество буквы", "место образования", "вид мадда"], "c": 1, "e": "Махрадж — место (выход) звука."}, {"q": "Сколько букв у махраджей горла?", "a": ["4", "6", "8"], "c": 1, "e": "Горло: 3 части × 2 буквы = 6."}],
-  },
-  {
-    id: "b1_02",
-    block: "b1",
-    order: 2,
-    title: "Горло (الحلق): 3 части и 6 букв",
-    tags: ["горло", "халк", "хамза", "айн"],
-    text: `Горло (الحلق) делят на 3 части. Из каждой выходят 2 буквы (всего 6).
+  {id:"b1-2", block:"b1", title:"Горло: три отдела и буквы", tags:["Блок 1","Горло"], html: `
+    <h2>Горло (الحلق)</h2>
+    <p>Горло делится на 3 отдела. У каждого — свои буквы.</p>
+    <div class="ex"><div class="label">Схема</div>
+      <ul>
+        <li><b>Самый верх</b> (ближе к рту): <span class="arabic">غ خ</span></li>
+        <li><b>Средний</b>: <span class="arabic">ع ح</span></li>
+        <li><b>Нижний</b> (ближе к груди): <span class="arabic">ء هـ</span></li>
+      </ul>
+    </div>
+    <p class="small">Подсказка: тренируй пары: (غ/خ), (ع/ح), (ء/هـ).</p>
+  `, quiz:{title:"Мини‑тест", questions:[{q:"Какие буквы относятся к среднему отделу горла?", options:["غ خ","ع ح","ء هـ","ف ب"], answer:1}] }},
 
-1) Глубина горла (أقصى الحلق): ء هـ
-2) Средняя часть (وسط الحلق): ع ح
-3) Ближняя к рту часть (أدنى الحلق): غ خ
+  {id:"b1-3", block:"b1", title:"Носовая полость (الخيشوم) и гунна", tags:["Блок 1","Гунна"], html: `
+    <h2>Носовая полость (الخيشوم)</h2>
+    <p><b>الخيشوم</b> — место выхода <b>гунны</b> (носового звучания).</p>
+    <div class="ex"><div class="label">Где встречается гунна</div>
+      <ul>
+        <li>При букве <span class="arabic">م</span> и <span class="arabic">ن</span> в некоторых правилах</li>
+        <li>При <b>идгаме с гунной</b> и <b>ихфа</b></li>
+      </ul>
+    </div>
+  `, quiz:{title:"Мини‑тест", questions:[{q:"Хайшум (الخيشوم) связан с…", options:["удлинением мадда","носовым звучанием (гунной)","местом ل","вакфом"], answer:1}] }},
 
-Эти буквы важны в правилах изхар (إظهار).`,
-    diagram: {"title": "الحلق — 3 ступени", "steps": [{"k": "أقصى الحلق", "v": "ء هـ"}, {"k": "وسط الحلق", "v": "ع ح"}, {"k": "أدنى الحلق", "v": "غ خ"}]},
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "أَخَذَ", "note": "ء — أقصى الحلق"}, {"arabic": "الْحَمْدُ", "note": "ح — وسط الحلق"}, {"arabic": "خَيْرٌ", "note": "خ — أدنى الحلق"}]}],
-  },
-  {
-    id: "b2_01",
-    block: "b2",
-    order: 1,
-    title: "Сыфаты: полный список (исправлено)",
-    tags: ["сыфаты", "шидда", "байния", "рахава", "изляк", "исмат"],
-    text: `Сыфаты (صفات) — свойства букв: «как» звучит буква.
+  {id:"b2-1", block:"b2", title:"Сыфаты: что это и зачем", tags:["Блок 2","Основы"], html: `
+    <h2>Сыфаты (صفات) — качества букв</h2>
+    <p><b>Сыфаты</b> — это характеристики звука буквы. Они помогают произносить букву правильно и отличать похожие.</p>
+    <div class="ex"><div class="label">Важно</div>
+      <ul>
+        <li>Махрадж отвечает за <b>место</b>, сыфаты — за <b>качество</b>.</li>
+        <li>Сыфаты бывают <b>парные</b> и <b>непарные</b>.</li>
+      </ul>
+    </div>
+  `, quiz:{title:"Мини‑тест", questions:[{q:"Сыфаты — это…", options:["место образования","качества произношения","знаки вакфа","виды сукуна"], answer:1}] }},
 
-Есть парные (противоположные) и непарные.
+  {id:"b2-2", block:"b2", title:"Парные сыфаты (кратко)", tags:["Блок 2","Парные"], html: `
+    <h2>Парные сыфаты (مختصرة)</h2>
+    <p>Парные — это качества, у которых есть «пара‑противоположность».</p>
+    <div class="ex"><div class="label">Пары (как в твоём учебнике)</div>
+      <ul>
+        <li><b>Щидда</b> (شدة) ↔ <b>Рахава</b> (رخاوة)</li>
+        <li><b>Байния</b> (بينِيّة) — середина</li>
+        <li><b>Хамс</b> (همس) ↔ <b>Джахр</b> (جهر)</li>
+        <li><b>Истиля</b> (استعلاء) ↔ <b>Истефаль</b> (استفال)</li>
+        <li><b>Итбак</b> (إطباق) ↔ <b>Инфитах</b> (انفتاح)</li>
+        <li><b>Излякъ</b> (إذلاق) ↔ <b>Исмат</b> (إصمات)</li>
+      </ul>
+    </div>
+  `, quiz:null},
 
-Парные пары:
-1) همس ↔ جهر
-2) شدة ↔ بينية/توسط ↔ رخاوة
-3) استعلاء ↔ استفال
-4) إطباق ↔ انفتاح
-5) إذلاق ↔ إصمات
+  {id:"b2-3", block:"b2", title:"Непарные сыфаты", tags:["Блок 2","Непарные"], html: `
+    <h2>Непарные сыфаты</h2>
+    <p>Непарные — качества, у которых нет противоположной пары.</p>
+    <div class="ex"><div class="label">Список (как ты написала)</div>
+      <ul>
+        <li><b>Сафир</b> (صفير)</li>
+        <li><b>Калькаля</b> (قلقلة)</li>
+        <li><b>Гъунна</b> (غنة)</li>
+        <li><b>Такрир</b> (تكرير)</li>
+        <li><b>Тафащщи</b> (تفشّي)</li>
+        <li><b>Иститъаля</b> (استعلاء)</li>
+        <li><b>Инхираф</b> (انحراف)</li>
+      </ul>
+    </div>
+  `, quiz:null},
 
-Непарные сыфаты:
-• صفير • قلقلة • غنة • تكرير • تفشي • استطالة • انحراف
+  {id:"b3-1", block:"b3", title:"Нун с сукуном и тануин: основа", tags:["Блок 3","Основы"], html: `
+    <h2>Нун с сукуном и тануин</h2>
+    <p>Правила чтения, когда встречается:</p>
+    <ul>
+      <li><span class="arabic">نْ</span> (нун с сукуном)</li>
+      <li>три вида <b>тануина</b>: <span class="arabic">ً ٍ ٌ</span></li>
+    </ul>
+    <div class="ex"><div class="label">Термины</div>
+      <p><b>Изхар</b>, <b>Идгъам</b>, <b>Икъляб</b>, <b>Ихфа</b>.</p>
+    </div>
+  `, quiz:{title:"Мини‑тест", questions:[{q:"Тануин — это…", options:["сукон на нун","двойные огласовки ً ٍ ٌ","мадд таби'и","буква хамза"], answer:1}] }},
 
-Дальше — подробно по ключевым из них с примерами.`,
-    extras: [{"type": "callout", "title": "Важно", "text": "Термины: Шидда, Байния (Тавассут), Рахава. Пятая пара: Излякъ и Исмат."}, {"type": "arabic_examples", "items": [{"arabic": "قَدْ أَفْلَحَ", "note": "ق/د — калькаля при сукуне."}, {"arabic": "إِنَّا", "note": "نّ — сильная гунна."}]}],
-  },
-  {
-    id: "b2_02",
-    block: "b2",
-    order: 2,
-    title: "Шидда • Байния • Рахава — подробно",
-    tags: ["шидда", "байния", "тавассут", "рахава"],
-    text: `Эта тройка описывает степень перекрытия воздуха.
+  {id:"b3-2", block:"b3", title:"Изхар (إظهار)", tags:["Блок 3","Изхар"], html: `
+    <h2>Изхар (إظهار)</h2>
+    <p><b>Изхар</b> — ясное произношение нуна/тануина без слияния, если после них идут <b>буквы горла</b>.</p>
+    <div class="ex"><div class="label">Буквы изхара</div>
+      <div class="arabic">ء هـ ع ح غ خ</div>
+    </div>
+  `, quiz:null},
 
-• شدة (Шидда): воздух перекрывается полностью → звук резче.
-• بينية/توسط (Байния/Тавассут): среднее положение.
-• رخاوة (Рахава): поток воздуха свободнее → звук «тянется».`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "أَتْقَنَ", "note": "ت — более «жёстко» (шидда)."}, {"arabic": "فِي", "note": "ف — ближе к рахаве."}]}],
-    quiz: [{"q": "Шидда — это…", "a": ["полное перекрытие воздуха", "свободный поток воздуха", "скрытие нун"], "c": 0, "e": "Шидда: воздух перекрывается полностью."}, {"q": "Среднее состояние называется…", "a": ["Байния (Тавассут)", "Ихфа", "Икъляб"], "c": 0, "e": "Правильно: Байния/Тавассут."}],
-  },
-  {
-    id: "b2_03",
-    block: "b2",
-    order: 3,
-    title: "Излякъ и Исмат (إذلاق / إصمات)",
-    tags: ["изляк", "исмат"],
-    text: `Это пятая пара сыфатов.
+  {id:"b3-3", block:"b3", title:"Идгъам (إدغام): с гунной и без", tags:["Блок 3","Идгъам"], html: `
+    <h2>Идгъам (إدغام)</h2>
+    <p><b>Идгъам</b> — слияние нуна/тануина со следующей буквой.</p>
+    <div class="ex"><div class="label">Буквы идгъама</div>
+      <p><b>ي ر م ل و ن</b> (в слове <span class="arabic">يرملون</span>)</p>
+      <ul>
+        <li>С <b>гунной</b>: <span class="arabic">ي ن م و</span></li>
+        <li>Без гунны: <span class="arabic">ل ر</span></li>
+      </ul>
+    </div>
+  `, quiz:null},
 
-• إذلاق (Излякъ): лёгкость/«подвижность» произнесения.
-• إصمات (Исмат): противоположное качество.
+  {id:"b3-4", block:"b3", title:"Икъляб (إقلاب)", tags:["Блок 3","Икъляб"], html: `
+    <h2>Икъляб (إقلاب)</h2>
+    <p>Если после нуна с сукуном или тануина идёт <span class="arabic">ب</span>, то нун превращается в «скрытый мим» с гунной.</p>
+    <div class="ex"><div class="label">Ключ</div>
+      <p><span class="arabic">نْ / تنوين + ب</span> → звучит как <span class="arabic">م</span> с гунной.</p>
+    </div>
+  `, quiz:null},
 
-Классическая запоминалка для букв إذلاق: «فَرَّ مِنْ لُبّ».`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "فَرَّ مِنْ لُبّ", "note": "Фраза-подсказка для букв إذلاق."}]}],
-  },
-  {
-    id: "b3_01",
-    block: "b3",
-    order: 1,
-    title: "Тануин или нун с сукуном — основы",
-    tags: ["тануин", "нун", "сукун", "изхар", "идгам", "икляб", "ихфа"],
-    text: `Корректное название темы: «Тануин (تنوين) или нун с сукуном (نون ساكنة)».
+  {id:"b3-5", block:"b3", title:"Ихфа (إخفاء)", tags:["Блок 3","Ихфа"], html: `
+    <h2>Ихфа (إخفاء)</h2>
+    <p><b>Ихфа</b> — «скрывание»: звук между изхаром и идгъамом, с гунной.</p>
+    <div class="ex"><div class="label">Дальше</div>
+      <p>Мы добавим полный список букв ихфа и много примеров из учебника.</p>
+    </div>
+  `, quiz:null},
 
-Тануин: ً ٍ ٌ.
-Нун с сукуном: نْ.
+  {id:"b4-1", block:"b4", title:"Мим с сукуном (مْ): правила", tags:["Блок 4","Основы"], html: `
+    <h2>Мим с сукуном (مْ)</h2>
+    <p>Если встречается <span class="arabic">مْ</span>, правила зависят от следующей буквы (по учебнику добавим подробно).</p>
+    <div class="ex"><div class="label">Важно</div>
+      <p>Название правильное: <b>мим с сукуном</b>.</p>
+    </div>
+  `, quiz:null},
 
-Термины правил:
-• إظهار (Изхар)
-• إدغام (Идгъам)
-• إقلاب (Икъляб)
-• إخفاء (Ихфа)`,
-    extras: [{"type": "callout", "title": "Подсказка", "text": "Ниже каждый термин — отдельным уроком с примерами."}],
-  },
-  {
-    id: "b3_02",
-    block: "b3",
-    order: 2,
-    title: "Изхар (إظهار) — ясное произнесение",
-    tags: ["изхар"],
-    text: `Изхар — ясное произнесение нун с сукуном/тануина без слияния.
+  {id:"b5-1", block:"b5", title:"Аль‑мадд (المدّ): виды удлинений", tags:["Блок 5","Мадды"], html: `
+    <h2>Виды удлинений (المدّ)</h2>
+    <p><b>Мадд</b> — удлинение звучания. Делится на:</p>
+    <div class="ex"><div class="label">Две группы</div>
+      <ul>
+        <li><b>Мадд аслий</b> (основное удлинение)</li>
+        <li><b>Мадд за’ид</b> (дополнительное удлинение)</li>
+      </ul>
+    </div>
+    <h3>1) Мадд аслий</h3>
+    <ul>
+      <li><b>Мадд таби’и</b> — 2 хараката.</li>
+      <li><b>Мадд бадал</b> — 2 хараката.</li>
+      <li><b>Мадд ‘ивад</b> — 2 хараката.</li>
+      <li><b>Мадд сила сугъра</b> — 2 хараката.</li>
+    </ul>
+    <h3>2) Мадд за’ид</h3>
+    <p>Бывает по причине <b>хамзы</b> или <b>сукуна</b>.</p>
+    <div class="ex"><div class="label">По причине хамзы</div>
+      <ul>
+        <li><b>Муттасыль</b> — 4–5 харакатов.</li>
+        <li><b>Мунфасыль</b> — 2–4–5 харакатов.</li>
+        <li><b>Сила кубра</b> — 4 хараката.</li>
+      </ul>
+    </div>
+    <div class="ex"><div class="label">По причине сукуна</div>
+      <ul>
+        <li><b>Лязим</b> — 6 харакатов.</li>
+        <li><b>‘Арид лиссукүн</b> — 2–4–6 харакатов.</li>
+        <li><b>Лин</b> — 2–4–6 харакатов.</li>
+      </ul>
+    </div>
+    <p class="small">Дальше добавим примеры из учебника и картинки/схемы.</p>
+  `, quiz:{title:"Мини‑тест (Мадды)", questions:[
+    {q:"Сколько харакатов у мадд таби’и?", options:["2","4–5","6","2–4–6"], answer:0},
+    {q:"Мадд муттасыль — это когда хамза…", options:["в следующем слове","в одном слове после мадда","до мадда","не важна"], answer:1}
+  ]}},
 
-Буквы изхар (буквы горла): ء هـ ع ح غ خ.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "مَنْ هَادَ", "note": "نْ + هـ → изхар"}, {"arabic": "عَلِيمٌ حَكِيمٌ", "note": "тaнуин + ح → изхар"}]}],
-    quiz: [{"q": "Буквы изхар относятся к…", "a": ["языку", "горлу", "губам"], "c": 1, "e": "Изхар — перед буквами горла."}],
-  },
-  {
-    id: "b3_03",
-    block: "b3",
-    order: 3,
-    title: "Идгъам (إدغام) — слияние",
-    tags: ["идгам", "يرملون"],
-    text: `Идгъам — слияние нун с сукуном/тануина со следующей буквой.
+  {id:"b6-1", block:"b6", title:"Вакф и ибтида: смысл", tags:["Блок 6","Вакф"], html: `
+    <h2>Вакф и ибтида</h2>
+    <p><b>Вакф</b> — остановка, <b>ибтида</b> — начало/возобновление.</p>
+    <div class="ex"><div class="label">Значки в Коране</div>
+      <p>Тему «значки в Коране» добавим подробно по учебнику: значения и примеры.</p>
+    </div>
+  `, quiz:null},
 
-Часто приводят буквы «يرملون». Подвиды (с гунной / без гунны) — оформим строго по учебнику.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "مِنْ رَبِّهِمْ", "note": "نْ + ر → идгъам"}, {"arabic": "مَنْ يَقُولُ", "note": "نْ + ي → идгъам (часто с гунной)"}]}],
-  },
-  {
-    id: "b3_04",
-    block: "b3",
-    order: 4,
-    title: "Икъляб (إقلاب) — превращение в م",
-    tags: ["икляб"],
-    text: `Икъляб — когда نْ или тануин перед ب превращаются в «скрытый мим» с гунной.
-
-В мусхафе часто ставят маленькую م как подсказку.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "أَنْبِئْهُمْ", "note": "نْ + ب → икъляб"}, {"arabic": "سَمِيعٌ بَصِيرٌ", "note": "тaнуин + ب → икъляб"}]}],
-  },
-  {
-    id: "b3_05",
-    block: "b3",
-    order: 5,
-    title: "Ихфа (إخفاء) — скрытие",
-    tags: ["ихфа"],
-    text: `Ихфа — «среднее» чтение: нун/тануин не произносятся явно как ن, но и не сливаются полностью.
-
-Сохраняется гунна. Список букв ихфа добавим точный по учебнику (обычно 15).`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "مِنْ تَحْتِهَا", "note": "نْ + ت → ихфа"}, {"arabic": "مِنْ صُدُورِ", "note": "нун перед ص — ихфа (пример)"}]}],
-  },
-  {
-    id: "b4_01",
-    block: "b4",
-    order: 1,
-    title: "Хамза и его виды",
-    tags: ["хамза", "أ", "إ", "ؤ", "ئ"],
-    text: `Хамза (ء) может писаться по‑разному: на алиф (أ/إ), на вау (ؤ), на йа (ئ), на строке (ء).
-
-В этом уроке соберём правила распознавания и чтения строго по учебнику.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "أَ", "note": "хамза на алиф"}, {"arabic": "مَسْؤُول", "note": "хамза на вау"}, {"arabic": "سُئِلَ", "note": "хамза на йа"}]}],
-  },
-  {
-    id: "b4_02",
-    block: "b4",
-    order: 2,
-    title: "Та‑марбута (ة)",
-    tags: ["та марбута", "ة"],
-    text: `Та‑марбута (ة) при соединении читается как ت, а при остановке обычно как ه (по правилам учебника).
-
-Добавим таблицу случаев и примеры.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "رَحْمَةٌ", "note": "при остановке → رحمةْ"}, {"arabic": "رَحْمَةُ اللَّهِ", "note": "при соединении → رحمةُ"}]}],
-  },
-  {
-    id: "b4_03",
-    block: "b4",
-    order: 3,
-    title: "Калькаля (قلقلة)",
-    tags: ["калькаля", "قطب جد"],
-    text: `Калькаля — «отскок» звука у букв ق ط ب ج د при сукуне.
-
-На конце слова при остановке она сильнее.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "يَجْعَلْ", "note": "جْ — калькаля"}, {"arabic": "الْحَقُّ", "note": "قْ при остановке — сильнее"}]}],
-  },
-  {
-    id: "b4_04",
-    block: "b4",
-    order: 4,
-    title: "Виды сукунов",
-    tags: ["сукун", "временный", "постоянный"],
-    text: `Сукун (ْ) — отсутствие огласовки.
-
-В учебниках различают сукун настоящий (постоянный) и сукун временный (например, из-за остановки — ваqф).`,
-  },
-  {
-    id: "b4_05",
-    block: "b4",
-    order: 5,
-    title: "Положение буквы لям (ل)",
-    tags: ["лям", "ل"],
-    text: `Раздел про لям (ل): случаи и правила чтения (в том числе сочетания, встречающиеся часто в Коране) — по учебнику.
-
-Добавим схемы и примеры из твоего пособия.`,
-  },
-  {
-    id: "b4_06",
-    block: "b4",
-    order: 6,
-    title: "Положение буквы мим (م) и мим с сукуном",
-    tags: ["мим", "мим с сукуном", "ميم ساكنة"],
-    text: `Правильное название: «мим с сукуном» (ميم ساكنة).
-
-Здесь соберём правила: изхар/идгъам/ихфа мим — подробно и с примерами (как в учебнике).`,
-  },
-  {
-    id: "b4_07",
-    block: "b4",
-    order: 7,
-    title: "Положение буквы нун и тануина — расширение",
-    tags: ["нун", "тануин"],
-    text: `Собираем правила для ن и тануина в одной логике: изхар, идгъам, икъляб, ихфа.
-
-Добавим полный список букв для каждого правила по учебнику + визуальные схемы.`,
-  },
-  {
-    id: "b4_08",
-    block: "b4",
-    order: 8,
-    title: "Положение буквы ро (ر)",
-    tags: ["ро", "ر"],
-    text: `Буква ر имеет разные положения (утолщение/смягчение) в зависимости от огласовок и окружения.
-
-Сюда добавим таблицу правил и примеры по учебнику.`,
-  },
-  {
-    id: "b5_01",
-    block: "b5",
-    order: 1,
-    title: "Аль‑мадд (المدّ): виды удлинений",
-    tags: ["мадд", "удлинение", "المد"],
-    text: `Аль‑мадд — удлинение звука.
-
-Буквы мадда: ا و ي (при условиях).
-
-Классификация:
-• мадд табии (естественный)
-• удлинения по причине хамзы
-• удлинения по причине сукуна
-
-Нужны все виды маддов — добавим полный список из твоего учебника.`,
-  },
-  {
-    id: "b5_02",
-    block: "b5",
-    order: 2,
-    title: "Удлинение по причине хамзы",
-    tags: ["мадд", "хамза", "متصل", "منفصل"],
-    text: `Когда рядом с буквой мадда стоит хамза, возникает удлинение по причине хамзы.
-
-Виды (по учебнику): متصل, منفصل и др.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "جَاءَ", "note": "متصل — в одном слове"}, {"arabic": "فِيٓ أَنْفُسِكُمْ", "note": "منفصل — в соседних словах"}]}],
-  },
-  {
-    id: "b5_03",
-    block: "b5",
-    order: 3,
-    title: "Удлинение по причине сукуна",
-    tags: ["мадд", "сукун", "لازم", "عارض"],
-    text: `Когда после буквы мадда стоит сукун (настоящий или временный), возникает удлинение по причине сукуна.
-
-Виды (по учебнику): لازم, عارض للسكون и др.`,
-    extras: [{"type": "arabic_examples", "items": [{"arabic": "الضَّآلِّينَ", "note": "لازم — сильное удлинение"}, {"arabic": "الْعَالَمِينَ", "note": "عارض — зависит от остановки"}]}],
-  },
-  {
-    id: "b6_01",
-    block: "b6",
-    order: 1,
-    title: "Вакф и ибтида",
-    tags: ["вакф", "ибтида", "остановка"],
-    text: `Вакф — остановка, ибтида — начало чтения.
-
-Разберём правила остановки и возобновления чтения, чтобы смысл не искажался.`,
-    extras: [{"type": "callout", "title": "Тренажёр", "text": "В конце блока есть экзамен и тренажёр — можно проходить сколько угодно раз."}],
-  },
-  {
-    id: "b6_02",
-    block: "b6",
-    order: 2,
-    title: "Значки в Коране",
-    tags: ["значки", "мусхаф"],
-    text: `Значки в мусхафе помогают чтению (в том числе знаки остановки, соединения, подсказки правил).
-
-Добавим полный список значков и пояснения по учебнику.`,
-  },
+  {id:"trainer-1", block:"trainer", title:"Тренажёр (в разработке)", tags:["Тренажёр"], html:`<h2>Тренажёр</h2><p>Здесь будет практика: выбор правила по примеру и быстрые проверки.</p>`, quiz:null},
+  {id:"exams-1", block:"exams", title:"Экзамены (в разработке)", tags:["Экзамены"], html:`<h2>Экзамены</h2><p>В конце каждого блока будет экзамен.</p>`, quiz:null},
 ];
 
-// ==========================
-// State
-// ==========================
-const LS_DONE="tajweed_done_v18";
-const LS_EXAM="tajweed_exams_v18";
-const LS_SETTINGS="tajweed_settings_v19";
-const done=new Set(JSON.parse(localStorage.getItem(LS_DONE)||"[]"));
-const exams=JSON.parse(localStorage.getItem(LS_EXAM)||"{}");
-let settings=JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}");
+// ===== STATE =====
+const KEY = "tajweed_app_state_v20";
+const NOTES_KEY = "tajweed_notes_v20";
+const SETTINGS_KEY = "tajweed_settings_v20";
 
-const el=id=>document.getElementById(id);
+const defaultSettings = {
+  base:16, arabic:22,
+  arabicFont:'"Noto Naskh Arabic","Amiri","Scheherazade New",Arial,sans-serif',
+  bgMode:"stars", bgUrl:""
+};
+
+function loadSettings(){
+  try{ const s = JSON.parse(localStorage.getItem(SETTINGS_KEY)||"null"); return {...defaultSettings, ...(s||{})}; }
+  catch(e){ return {...defaultSettings}; }
+}
+function saveSettings(s){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+let settings = loadSettings();
+
+function applySettings(){
+  document.documentElement.style.setProperty("--base", settings.base+"px");
+  document.documentElement.style.setProperty("--arabic", settings.arabic+"px");
+  document.documentElement.style.setProperty("--arabic-font", settings.arabicFont);
+
+  document.body.classList.remove("bg-stars","bg-arabesque","bg-paper");
+  document.body.style.backgroundImage = "";
+  if(settings.bgMode==="stars") document.body.classList.add("bg-stars");
+  if(settings.bgMode==="arabesque") document.body.classList.add("bg-arabesque");
+  if(settings.bgMode==="paper") document.body.classList.add("bg-paper");
+  if(settings.bgMode==="custom" && settings.bgUrl){
+    document.body.style.backgroundImage = "linear-gradient(180deg, rgba(5,8,18,.86), rgba(11,18,32,.92)), url('"+settings.bgUrl+"')";
+    document.body.style.backgroundSize="cover";
+    document.body.style.backgroundPosition="center";
+    document.body.style.backgroundAttachment="fixed";
+  }
+}
+
+function loadState(){
+  try{
+    return JSON.parse(localStorage.getItem(KEY)||"null") || {currentId:"home", completed:{}};
+  }catch(e){ return {currentId:"home", completed:{}}; }
+}
+function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+let state = loadState();
+
+function loadNotesMap(){
+  try{ return JSON.parse(localStorage.getItem(NOTES_KEY)||"null") || {}; }
+  catch(e){ return {}; }
+}
+function saveNotesMap(m){ localStorage.setItem(NOTES_KEY, JSON.stringify(m)); }
+let notesMap = loadNotesMap();
+
+// ===== UI =====
+const $ = (s)=>document.querySelector(s);
+const tocEl = $("#toc");
+const contentEl = $("#content");
+const chipsEl = $("#lessonChips");
+const qEl = $("#q");
+const filterEl = $("#filter");
+const progressEl = $("#progress");
+const notesEl = $("#notes");
+const notesMsg = $("#notesMsg");
+
+function stripHtml(s){
+  const tmp = document.createElement("div");
+  tmp.innerHTML = s;
+  return tmp.textContent || tmp.innerText || "";
+}
 function blockLabel(b){
-  return ({
-    b1:"Блок 1: Махраджи",
-    b2:"Блок 2: Сыфаты",
-    b3:"Блок 3: Нун ساкина",
-    b4:"Блок 4: Доп. правила и буквы",
-    b5:"Блок 5: Мадды",
-    b6:"Блок 6: Вакф и ибтида",
-    trainer:"Тренажёр",
-    exam:"Экзамены"
-  })[b]||"Урок";
+  return ({home:"Оглавление", b1:"Блок 1", b2:"Блок 2", b3:"Блок 3", b4:"Блок 4", b5:"Блок 5", b6:"Блок 6", trainer:"Тренажёр", exams:"Экзамены"})[b] || b;
 }
-function escapeHtml(str){
-  return String(str ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, (m)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[m]);
 }
-function examBadge(id){
-  const e=exams[id];
-  if(!e) return "📝";
-  return e.passed ? `<span class="good">🏁 ${Math.round(e.score*100)}%</span>` : `<span class="bad">📝 ${Math.round(e.score*100)}%</span>`;
-}
-
-// sorted list for navigation
-const ordered = [...lessons].sort((a,b)=>(a.order||0)-(b.order||0));
-
-// ==========================
-// Render list
-// ==========================
-function render(){
-  el("progressPill").textContent=`${done.size}/${lessons.length}`;
-
-  const q=(el("q").value||"").trim().toLowerCase();
-  const bf=el("blockFilter").value;
-
-  const filtered = ordered.filter(l=>{
-    if(bf!=="all"){
-      if(bf==="exam"){ if(l.block!=="exam") return false; }
-      else if(bf==="trainer"){ if(l.block!=="trainer") return false; }
-      else if(l.block!==bf) return false;
-    }
-    if(!q) return true;
-    const hay=(l.title+" "+(l.tags||[]).join(" ")+" "+(l.text||"")).toLowerCase();
-    return hay.includes(q);
+function getVisibleLessons(){
+  const query = (qEl.value||"").trim().toLowerCase();
+  const f = filterEl.value;
+  return LESSONS.filter((l)=>{
+    if(f!=="all" && l.block!==f) return false;
+    if(!query) return true;
+    const hay = (l.title+" "+(l.tags||[]).join(" ")+" "+stripHtml(l.html)).toLowerCase();
+    return hay.includes(query);
   });
-
-  el("lessonList").innerHTML = filtered.map(l=>{
-    const isExam = l.block==="exam";
-    const isTrainer = l.block==="trainer";
-    const badge = isExam ? examBadge(l.id) : (isTrainer ? "🎯" : (done.has(l.id) ? "✅" : "⬜"));
-    return `
-      <div class="card" style="margin:0;">
-        <div class="row" style="justify-content:space-between;align-items:center;">
-          <div>
-            <div style="font-weight:900">${escapeHtml(l.title)} ${badge}</div>
-            <div class="muted small">${escapeHtml(blockLabel(l.block))}</div>
-          </div>
-          <button class="primary" onclick="openLesson('${l.id}')">Открыть</button>
-        </div>
+}
+function renderToc(){
+  const items = getVisibleLessons();
+  tocEl.innerHTML="";
+  if(items.length===0){
+    tocEl.innerHTML = '<div class="msg bad">Ничего не найдено. Убери фильтр или очисти поиск.</div>';
+    return;
+  }
+  for(const l of items){
+    const div = document.createElement("div");
+    div.className = "toc-item"+(l.id===state.currentId?" active":"");
+    const done = !!state.completed[l.id];
+    div.innerHTML = `
+      <div class="badge">${done ? "✓" : "•"}</div>
+      <div style="min-width:0">
+        <div style="font-weight:600">${escapeHtml(l.title)}</div>
+        <div class="toc-meta">${escapeHtml(blockLabel(l.block))}${(l.tags&&l.tags.length) ? " · "+escapeHtml(l.tags.join(" · ")) : ""}</div>
       </div>
     `;
-  }).join("");
+    div.onclick = ()=>openLesson(l.id);
+    tocEl.appendChild(div);
+  }
 }
-
-// ==========================
-// Lesson view
-// ==========================
-let currentId=null;
+function setProgress(){
+  const total = LESSONS.length - 1;
+  const done = Object.keys(state.completed).filter((k)=>k!=="home").length;
+  progressEl.textContent = done + "/" + total;
+}
+function renderQuiz(lesson){
+  if(!lesson.quiz) return "";
+  const qz = lesson.quiz;
+  let out = `<div class="quiz"><h3>${escapeHtml(qz.title||"Тест")}</h3><div class="msg">Проверь себя прямо сейчас.</div>`;
+  qz.questions.forEach((qq,i)=>{
+    out += `<div class="q" data-q="${i}">
+      <div class="qtitle">${escapeHtml(qq.q)}</div>
+      <div class="opts">`;
+    qq.options.forEach((opt,oi)=>{
+      out += `<label class="opt"><input type="radio" name="q_${lesson.id}_${i}" value="${oi}"/><div>${escapeHtml(opt)}</div></label>`;
+    });
+    out += `</div></div>`;
+  });
+  out += `<div class="quiz-actions">
+    <button class="btn" onclick="checkQuiz('${lesson.id}')">Проверить</button>
+    <button class="btn" style="border-color: rgba(255,255,255,.18); background: rgba(0,0,0,.18);" onclick="resetQuiz('${lesson.id}')">Сбросить</button>
+    <span class="msg" id="quizMsg"></span>
+  </div></div>`;
+  return out;
+}
+window.checkQuiz = function(lessonId){
+  const lesson = LESSONS.find((l)=>l.id===lessonId);
+  if(!lesson || !lesson.quiz) return;
+  const msg = document.getElementById("quizMsg");
+  let ok=0;
+  lesson.quiz.questions.forEach((qq,i)=>{
+    const sel = document.querySelector(`input[name="q_${lessonId}_${i}"]:checked`);
+    if(sel && Number(sel.value)===qq.answer) ok++;
+  });
+  const total = lesson.quiz.questions.length;
+  if(ok===total){ msg.textContent = "✅ Отлично! "+ok+"/"+total; msg.className="msg ok"; }
+  else { msg.textContent = "❗ Пока так: "+ok+"/"+total+". Попробуй ещё раз."; msg.className="msg bad"; }
+}
+window.resetQuiz = function(lessonId){
+  const lesson = LESSONS.find((l)=>l.id===lessonId);
+  if(!lesson || !lesson.quiz) return;
+  lesson.quiz.questions.forEach((qq,i)=>{
+    document.querySelectorAll(`input[name="q_${lessonId}_${i}"]`).forEach((x)=>x.checked=false);
+  });
+  const msg = document.getElementById("quizMsg");
+  if(msg){ msg.textContent=""; msg.className="msg"; }
+}
 
 function openLesson(id){
-  const idx = ordered.findIndex(x=>x.id===id);
+  const idx = LESSONS.findIndex((x)=>x.id===id);
   if(idx<0) return;
-  currentId=id;
+  state.currentId=id; saveState(); renderToc();
 
-  const l=ordered[idx];
-  el("viewHome").style.display="none";
-  el("viewLesson").style.display="block";
+  const l = LESSONS[idx];
+  chipsEl.innerHTML="";
+  const chips = [blockLabel(l.block), ...(l.tags||[])].slice(0,6);
+  chips.forEach((c)=>{ const s=document.createElement("span"); s.className="chip"; s.textContent=c; chipsEl.appendChild(s); });
 
-  el("lessonTitle").textContent=l.title;
-  el("lessonText").textContent=l.text||"";
-  el("lessonBadges").innerHTML =
-    `<span class="tag">${escapeHtml(blockLabel(l.block))}</span>` +
-    (l.tags||[]).slice(0,10).map(t=>`<span class="tag">#${escapeHtml(t)}</span>`).join(" ");
+  contentEl.innerHTML = l.html + renderQuiz(l);
 
-  // prev/next
-  const prev = idx>0 ? ordered[idx-1].id : null;
-  const next = idx<ordered.length-1 ? ordered[idx+1].id : null;
-  el("prevBtn").disabled = !prev;
-  el("nextBtn").disabled = !next;
-  el("prevBtn").onclick = ()=> prev && openLesson(prev);
-  el("nextBtn").onclick = ()=> next && openLesson(next);
+  notesEl.value = notesMap[id] || "";
+  notesMsg.textContent="";
 
-  // extras
-  renderExtras(l.extras||[]);
-
-  // diagram
-  renderDiagram(l.diagram);
-
-  // action button + quiz/trainer/exam
-  const btn=el("btnDone");
-  if(l.block==="exam"){
-    const e=exams[id];
-    btn.textContent = e?.passed ? `Экзамен сдан (${Math.round(e.score*100)}%)` : (e ? `Пересдать (последний ${Math.round(e.score*100)}%)` : "Начать экзамен");
-    btn.onclick=()=>startExam(l);
-    el("quizBlock").style.display="none"; el("quizBlock").innerHTML="";
-  } else if(l.block==="trainer" || l.trainer){
-    btn.textContent="Запустить тренажёр";
-    btn.onclick=()=>renderTrainer();
-    el("quizBlock").style.display="none"; el("quizBlock").innerHTML="";
-  } else {
-    btn.textContent = done.has(id) ? "Снять «пройдено»" : "Отметить «пройдено»";
-    btn.onclick=()=>{
-      if(done.has(id)) done.delete(id); else done.add(id);
-      localStorage.setItem(LS_DONE, JSON.stringify([...done]));
-      openLesson(id);
-      render();
-    };
-    renderQuiz(l.quiz||[], {mode:"mini"});
-  }
-  // Notes (per lesson)
-  const notesKey = "tajweed_note_" + id;
-  const notesArea = el("notesArea");
-  const clearNotesBtn = el("clearNotesBtn");
-  const notesStatus = el("notesStatus");
-  if(notesArea){
-    notesArea.value = (localStorage.getItem(notesKey) || "");
-    let t=null;
-    notesArea.oninput = ()=>{
-      if(notesStatus) notesStatus.textContent="Сохранение…";
-      clearTimeout(t);
-      t=setTimeout(()=>{
-        localStorage.setItem(notesKey, notesArea.value);
-        if(notesStatus) notesStatus.textContent="Сохранено";
-        updateNotesCount();
-      }, 250);
-    };
-  }
-  if(clearNotesBtn){
-    clearNotesBtn.onclick=()=>{
-      if(notesArea) notesArea.value="";
-      localStorage.removeItem(notesKey);
-      if(notesStatus) notesStatus.textContent="Очищено";
-      updateNotesCount();
-    };
-  }
-
+  if(id!=="home"){ state.completed[id]=true; saveState(); setProgress(); renderToc(); }
+}
+function navTo(delta){
+  const items = getVisibleLessons();
+  const idx = items.findIndex((x)=>x.id===state.currentId);
+  if(idx<0) return;
+  const next = items[idx+delta];
+  if(next) openLesson(next.id);
 }
 
-function renderExtras(extras){
-  const host = el("lessonExtras");
-  host.innerHTML="";
-  if(!extras.length) return;
-  extras.forEach(x=>{
-    if(x.type==="callout"){
-      host.innerHTML += `<div class="notice"><b>${escapeHtml(x.title||"Важно")}</b><br/>${escapeHtml(x.body||"")}</div>`;
-    }
-    if(x.type==="arabic_examples"){
-      const items=(x.items||[]).map(it=>`
-        <div class="arline">
-          <div class="ar">${it.ar}</div>
-          <div class="muted small">${escapeHtml(it.note||"")}</div>
-        </div>
-      `).join("");
-      host.innerHTML += `<div class="hr"></div><h3>${escapeHtml(x.title||"Примеры")}</h3>${items}`;
-    }
-  });
+// notes buttons
+$("#saveNotes").onclick = ()=>{
+  notesMap[state.currentId]=notesEl.value||"";
+  saveNotesMap(notesMap);
+  notesMsg.textContent="Сохранено"; notesMsg.className="msg ok";
+  setTimeout(()=>{notesMsg.textContent=""; notesMsg.className="msg";}, 1200);
+};
+$("#clearNotes").onclick = ()=>{
+  notesEl.value=""; notesMap[state.currentId]=""; saveNotesMap(notesMap);
+  notesMsg.textContent="Очищено"; notesMsg.className="msg";
+  setTimeout(()=>{notesMsg.textContent="";}, 900);
+};
+
+// settings modal
+const backdrop = $("#settingsBackdrop");
+const settingsMsg = $("#settingsMsg");
+function syncSettingsUI(){
+  $("#baseRange").value = settings.base;
+  $("#arabicRange").value = settings.arabic;
+  $("#basePx").textContent = settings.base;
+  $("#arabicPx").textContent = settings.arabic;
+  $("#arabicFont").value = settings.arabicFont;
+  $("#bgMode").value = settings.bgMode;
+  $("#bgUrl").value = settings.bgUrl || "";
 }
+function openSettings(){ backdrop.style.display="flex"; backdrop.setAttribute("aria-hidden","false"); syncSettingsUI(); }
+function closeSettings(){ backdrop.style.display="none"; backdrop.setAttribute("aria-hidden","true"); settingsMsg.textContent=""; }
+$("#openSettings").onclick = openSettings;
+$("#closeSettings").onclick = closeSettings;
+backdrop.addEventListener("click",(e)=>{ if(e.target===backdrop) closeSettings(); });
 
-// ==========================
-// Diagram
-// ==========================
-function renderDiagram(d){
-  const t=el("lessonDiagram");
-  if(!d){ t.innerHTML=""; return; }
-  const steps=(d.steps||[]).map((s,i)=>`
-    <div class="box">
-      <div style="font-weight:900">${escapeHtml(s.t)}</div>
-      <div class="muted small">${escapeHtml(s.d||"")}</div>
-    </div>
-    ${i<d.steps.length-1?`<div class="arrow">➜</div>`:""}
-  `).join("");
-  t.innerHTML = `
-    <div class="diagram">
-      <div class="title">${escapeHtml(d.title||"Схема")}</div>
-      <div class="flow">${steps}</div>
-    </div>
-  `;
-}
+$("#baseRange").addEventListener("input",(e)=>{ settings.base=Number(e.target.value); $("#basePx").textContent=settings.base; saveSettings(settings); applySettings(); });
+$("#arabicRange").addEventListener("input",(e)=>{ settings.arabic=Number(e.target.value); $("#arabicPx").textContent=settings.arabic; saveSettings(settings); applySettings(); });
+$("#arabicFont").addEventListener("change",(e)=>{ settings.arabicFont=e.target.value; saveSettings(settings); applySettings(); });
+$("#bgMode").addEventListener("change",(e)=>{ settings.bgMode=e.target.value; saveSettings(settings); applySettings(); });
+$("#bgUrl").addEventListener("change",(e)=>{ settings.bgUrl=e.target.value.trim(); saveSettings(settings); applySettings(); });
 
-// ==========================
-// Quiz Engine
-// ==========================
-function renderQuiz(qs, opts){
-  const qb=el("quizBlock");
-  if(!qs.length){ qb.style.display="none"; qb.innerHTML=""; return; }
-  qb.style.display="block";
+$("#resetAll").onclick = ()=>{
+  settings = {...defaultSettings};
+  saveSettings(settings); applySettings(); syncSettingsUI();
+  settingsMsg.textContent="Сброшено"; settingsMsg.className="msg ok";
+  setTimeout(()=>{settingsMsg.textContent=""; settingsMsg.className="msg";}, 1200);
+};
 
-  qb.innerHTML = `
-    <h3>${opts?.mode==="exam" ? "Экзамен" : "Мини‑тест"}</h3>
-    <div class="muted small">${opts?.mode==="exam" ? "Выбери ответы и нажми «Проверить и завершить»." : "Проверь себя прямо сейчас."}</div>
-    <div class="hr"></div>
-    <div id="qs"></div>
-    <div class="hr"></div>
-    <div class="row">
-      <button class="primary" id="checkBtn">${opts?.mode==="exam" ? "Проверить и завершить" : "Проверить"}</button>
-      <button class="ghost" id="resetBtn">Сбросить</button>
-      <span class="right"></span>
-      <span class="pill" id="scorePill" style="display:none"></span>
-    </div>
-    <div id="note" style="margin-top:10px;"></div>
-  `;
-
-  const qsEl=document.getElementById("qs");
-  qsEl.innerHTML = qs.map((x,idx)=>`
-    <div class="q">
-      <div style="font-weight:900">${escapeHtml(x.q)}</div>
-      ${(x.a||[]).map((v,j)=>`
-        <label class="opt">
-          <input type="radio" name="q${idx}" value="${j}"/>
-          <span>${escapeHtml(v)}</span>
-        </label>
-      `).join("")}
-      <div class="muted small" id="fb${idx}"></div>
-    </div>
-  `).join("");
-
-  const scorePill=document.getElementById("scorePill");
-  document.getElementById("resetBtn").onclick=()=>{
-    qs.forEach((_,idx)=>{
-      document.querySelectorAll(`input[name="q${idx}"]`).forEach(r=>r.checked=false);
-      const fb=document.getElementById(`fb${idx}`);
-      fb.textContent=""; fb.className="muted small";
-    });
-    scorePill.style.display="none";
-    document.getElementById("note").innerHTML="";
-  };
-
-  document.getElementById("checkBtn").onclick=()=>{
-    let correct=0;
-    qs.forEach((x,idx)=>{
-      const sel=document.querySelector(`input[name="q${idx}"]:checked`);
-      const fb=document.getElementById(`fb${idx}`);
-      if(!sel){
-        fb.textContent="Ответ не выбран.";
-        fb.className="muted small";
-        return;
-      }
-      const choice=parseInt(sel.value,10);
-      if(choice===x.c){
-        correct++;
-        fb.textContent="Верно ✅";
-        fb.className="muted small good";
-      } else {
-        fb.textContent=`Неверно ❌ (правильный: ${escapeHtml(x.a[x.c])})`;
-        fb.className="muted small bad";
-      }
-    });
-
-    const score=correct/qs.length;
-    scorePill.style.display="inline-block";
-    scorePill.textContent=`Результат: ${correct}/${qs.length} (${Math.round(score*100)}%)`;
-
-    if(opts?.mode==="exam"){
-      opts.onFinish?.(score);
-    }
-  };
-}
-
-function startExam(lesson){
-  const pass=typeof lesson.pass==="number" ? lesson.pass : 0.7;
-  renderQuiz(lesson.quiz||[], {
-    mode:"exam",
-    onFinish:(score)=>{
-      const passed=score>=pass;
-      exams[lesson.id]={score, passed, ts: Date.now()};
-      localStorage.setItem(LS_EXAM, JSON.stringify(exams));
-      const note=document.getElementById("note");
-      note.innerHTML = passed
-        ? `<div class="notice good"><b>Экзамен сдан ✅</b><br/>${Math.round(score*100)}% (проходной ${Math.round(pass*100)}%).</div>`
-        : `<div class="notice bad"><b>Пока не сдан ❌</b><br/>${Math.round(score*100)}% (нужно ${Math.round(pass*100)}%).</div>`;
-      render();
-    }
-  });
-}
-
-// ==========================
-// Trainer (mix of topics; will expand later per textbook)
-// ==========================
-function renderTrainer(){
-  const qb=el("quizBlock");
-  qb.style.display="block";
-  qb.innerHTML = `
-    <h3>🎯 Тренажёр</h3>
-    <div class="muted small">Выбирай правильное правило. Можно тренироваться бесконечно.</div>
-    <div class="hr"></div>
-    <div class="q">
-      <div class="muted small">Ситуация</div>
-      <div style="font-weight:900;font-size:18px" id="tPrompt"></div>
-      <div class="hr"></div>
-      <div class="muted small">Выбери ответ</div>
-      <div id="tOptions"></div>
-      <div class="hr"></div>
-      <div class="row">
-        <button class="primary" id="tCheck">Проверить</button>
-        <button class="ghost" id="tNext">Следующий</button>
-        <span class="right"></span>
-        <span class="pill" id="tScore">0 верно</span>
-      </div>
-      <div id="tFeedback" class="muted small" style="margin-top:10px"></div>
-    </div>
-  `;
-
-  const tasks = [
-    {p:"Щидда/Байния/Рахава: буквы ل ن ع م ر", ok:"Байния", opts:["Щидда","Байния","Рахава"]},
-    {p:"Хамс: ف ح ث ه ش خ ص س ك ت", ok:"Хамс", opts:["Джахр","Хамс","Калькаля"]},
-    {p:"Исти‘ля: خ ص ض غ ط ق ظ", ok:"Исти‘ля", opts:["Истифаль","Итбак","Исти‘ля"]},
-    {p:"Калькаля: ق ط ب ج د", ok:"Калькаля", opts:["Сафир","Калькаля","Лейн"]},
-    {p:"مْ + م", ok:"Идгам мислейн", opts:["Ихфа шафауи","Идгам мислейн","Изхар"]},
-    {p:"نْ + ب", ok:"Икляб", opts:["Изхар","Икляб","Ихфа"]},
-    {p:"Знак вакфа لا", ok:"Нельзя останавливаться", opts:["Можно","Нельзя останавливаться","Обязательно"]},
-    {p:"Мадд табии", ok:"2 хараката", opts:["2 хараката","4–5","6"]},
-  ];
-
-  let i = Math.floor(Math.random()*tasks.length);
-  let correctCount = 0;
-
-  const promptEl=document.getElementById("tPrompt");
-  const optsEl=document.getElementById("tOptions");
-  const fbEl=document.getElementById("tFeedback");
-  const scoreEl=document.getElementById("tScore");
-
-  function show(){
-    fbEl.textContent="";
-    const t=tasks[i];
-    promptEl.textContent=t.p;
-    optsEl.innerHTML = t.opts.map((o,idx)=>`
-      <label class="opt">
-        <input type="radio" name="tr" value="${idx}"/>
-        <span>${escapeHtml(o)}</span>
-      </label>
-    `).join("");
-  }
-
-  function next(){
-    i = (i+1) % tasks.length;
-    show();
-  }
-
-  document.getElementById("tCheck").onclick=()=>{
-    const t=tasks[i];
-    const sel=document.querySelector('input[name="tr"]:checked');
-    if(!sel){ fbEl.textContent="Выбери вариант 🙂"; return; }
-    const choice=t.opts[parseInt(sel.value,10)];
-    if(choice===t.ok){
-      correctCount++;
-      fbEl.innerHTML=`<span class="good">Верно ✅</span>`;
-      scoreEl.textContent=`${correctCount} верно`;
-    } else {
-      fbEl.innerHTML=`<span class="bad">Неверно ❌</span> Правильно: <b>${escapeHtml(t.ok)}</b>`;
-    }
-  };
-  document.getElementById("tNext").onclick=()=>next();
-
-  show();
-}
-
-// ==========================
-// Navigation
-// ==========================
-function goHome(){
-  el("viewLesson").style.display="none";
-  el("viewHome").style.display="block";
- function applySettings(){
-  const fs=settings.fs ?? 16;
-  const ar=settings.ar ?? 1.25;
-  const font=settings.arFont ?? `"Amiri","Scheherazade New","Noto Naskh Arabic","Noto Sans Arabic","Arial"`;
-  document.documentElement.style.setProperty("--fs", fs+"px");
-  document.documentElement.style.setProperty("--arabic-size", ar+"em");
-  document.documentElement.style.setProperty("--arabic-font", font);
-
-  // sync UI if exists
-  const fsR=document.getElementById("fsRange"); if(fsR) fsR.value=fs;
-  const arR=document.getElementById("arRange"); if(arR) arR.value=ar;
-  const fsV=document.getElementById("fsVal"); if(fsV) fsV.textContent=fs;
-  const arV=document.getElementById("arVal"); if(arV) arV.textContent=ar.toFixed(2)+"em";
-  const sel=document.getElementById("arFontSel"); if(sel) sel.value=font;
-  localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
-  applyBackground();
-  updateNotesCount();
-
-}const arR=document.getElementById("arRange"); if(arR) arR.value=ar;
-  const fsV=document.getElementById("fsVal"); if(fsV) fsV.textContent=fs;
-  const arV=document.getElementById("arVal"); if(arV) arV.textContent=ar.toFixed(2)+"em";
-  const sel=document.getElementById("arFontSel"); if(sel) sel.value=font;
-  localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
-}
-
-function updateNotesCount(){
+$("#exportNotes").onclick = ()=>{
+  const data = JSON.stringify(notesMap, null, 2);
+  (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(data) : Promise.reject())
+    .then(()=>{ settingsMsg.textContent="JSON заметок скопирован в буфер"; settingsMsg.className="msg ok"; setTimeout(()=>{settingsMsg.textContent="";},1500); })
+    .catch(()=>{ prompt("Скопируй этот JSON:", data); });
+};
+$("#importNotes").onclick = ()=>{
+  const txt = prompt("Вставь JSON заметок:");
+  if(!txt) return;
   try{
-    const keys = Object.keys(localStorage).filter(k=>k.startsWith("tajweed_note_"));
-    const elCount = el("notesCount");
-    if(elCount) elCount.textContent = `Сохранено заметок: ${keys.length}`;
-  }catch(e){}
-}
-
-function applyBackground(){
-  const bg = (settings.bg || "stars");
-  const customUrl = (settings.bgUrl || "").trim();
-
-  // lightweight SVG patterns (arabic-style)
-  const arabesqueSvg = encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 260 260">
-      <rect width="260" height="260" fill="transparent"/>
-      <g fill="none" stroke="rgba(232,200,120,0.18)" stroke-width="2">
-        <path d="M130 10c40 0 70 30 70 70s-30 70-70 70-70-30-70-70 30-70 70-70z"/>
-        <path d="M130 50c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32z"/>
-        <path d="M10 130c0-40 30-70 70-70s70 30 70 70-30 70-70 70-70-30-70-70z"/>
-        <path d="M250 130c0-40-30-70-70-70s-70 30-70 70 30 70 70 70 70-30 70-70z"/>
-        <path d="M130 250c-40 0-70-30-70-70s30-70 70-70 70 30 70 70-30 70-70 70z"/>
-      </g>
-    </svg>
-  `.trim());
-
-  const paperSvg = encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
-      <filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/></filter>
-      <rect width="400" height="400" filter="url(#n)" opacity=".25" fill="#e8c878"/>
-    </svg>
-  `.trim());
-
-  let img = "none";
-  let repeat = "repeat";
-  let size = "auto";
-
-  if(bg==="stars"){
-    img = "none";
-  }else if(bg==="arabesque"){
-    img = `url("data:image/svg+xml,${arabesqueSvg}")`;
-    repeat = "repeat";
-    size = "260px 260px";
-  }else if(bg==="paper"){
-    img = `url("data:image/svg+xml,${paperSvg}")`;
-    repeat = "repeat";
-    size = "400px 400px";
-  }else if(bg==="custom" && customUrl){
-    img = `url("${customUrl.replace(/"/g,'\\"')}")`;
-    repeat = "no-repeat";
-    size = "cover";
+    const obj = JSON.parse(txt);
+    if(typeof obj!=="object" || obj===null) throw new Error("bad");
+    notesMap=obj; saveNotesMap(notesMap); openLesson(state.currentId);
+    settingsMsg.textContent="Импортировано"; settingsMsg.className="msg ok";
+    setTimeout(()=>{settingsMsg.textContent="";},1200);
+  }catch(e){
+    alert("Не удалось импортировать: проверь JSON.");
   }
+};
+$("#clearAllNotes").onclick = ()=>{
+  if(!confirm("Удалить все заметки на этом устройстве?")) return;
+  notesMap={}; saveNotesMap(notesMap); openLesson(state.currentId);
+  settingsMsg.textContent="Все заметки очищены"; settingsMsg.className="msg";
+  setTimeout(()=>{settingsMsg.textContent="";},1200);
+};
 
-  document.documentElement.style.setProperty("--bg-img", img);
-  document.documentElement.style.setProperty("--bg-repeat", repeat);
-  document.documentElement.style.setProperty("--bg-size", size);
+// top nav
+$("#btnHome").onclick = ()=>openLesson("home");
+$("#btnPrev").onclick = ()=>navTo(-1);
+$("#btnNext").onclick = ()=>navTo(+1);
 
-  // sync UI if present
-  const bgSel = el("bgSel");
-  const bgUrlWrap = el("bgUrlWrap");
-  const bgUrl = el("bgUrl");
-  if(bgSel && bgSel.value !== bg) bgSel.value = bg;
-  if(bgUrl){
-    if(bgUrl.value !== customUrl) bgUrl.value = customUrl;
-  }
-  if(bgUrlWrap){
-    bgUrlWrap.style.display = (bg==="custom") ? "block" : "none";
-  }
-}
+// search/filter
+qEl.addEventListener("input", renderToc);
+filterEl.addEventListener("change", renderToc);
 
+// init
 applySettings();
+setProgress();
+renderToc();
+openLesson(state.currentId || "home");
 
-const drawer=el("settingsDrawer");
-el("settingsBtn").onclick=()=>drawer.classList.add("open");
-el("closeSettings").onclick=()=>drawer.classList.remove("open");
-
-el("fsRange").addEventListener("input",(e)=>{settings.fs=parseInt(e.target.value,10); applySettings();});
-el("arRange").addEventListener("input",(e)=>{settings.ar=parseFloat(e.target.value); applySettings();});
-el("arFontSel").addEventListener("change",(e)=>{settings.arFont=e.target.value; applySettings();});
-el("resetSettings").onclick=()=>{settings={}; applySettings();};
-
-// Background selection
-const bgSelEl = el("bgSel");
-if(bgSelEl){
-  bgSelEl.addEventListener("change",(e)=>{settings.bg=e.target.value; applySettings();});
+// PWA
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{ navigator.serviceWorker.register("./sw.js").catch(()=>{}); });
 }
-const bgUrlEl = el("bgUrl");
-if(bgUrlEl){
-  bgUrlEl.addEventListener("input",(e)=>{settings.bgUrl=e.target.value; applySettings();});
-}
-
-// Notes export / clear
-const exportBtn = el("exportNotes");
-if(exportBtn){
-  exportBtn.onclick=()=>{
-    const notes = {};
-    Object.keys(localStorage).filter(k=>k.startsWith("tajweed_note_")).forEach(k=>{
-      notes[k.replace("tajweed_note_","")] = localStorage.getItem(k) || "";
-    });
-    const payload = { exportedAt: new Date().toISOString(), notes };
-    const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "tajweed-notes.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
-  };
-}
-const clearAllBtn = el("clearAllNotes");
-if(clearAllBtn){
-  clearAllBtn.onclick=()=>{
-    if(!confirm("Удалить все заметки на этом устройстве?")) return;
-    Object.keys(localStorage).filter(k=>k.startsWith("tajweed_note_")).forEach(k=>localStorage.removeItem(k));
-    updateNotesCount();
-    const na = el("notesArea");
-    if(na) na.value="";
-  };
-}
-
-
-// ==========================
-// Initial render + PWA
-// ==========================
-el("q").addEventListener("input",render);
-el("blockFilter").addEventListener("change",render);
-render();
-
-let dp=null;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;el("installBtn").style.display="inline-block"});
-el("installBtn").onclick=async()=>{if(!dp)return;dp.prompt();await dp.userChoice;dp=null;el("installBtn").style.display="none"};
-if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js")}
 </script>
 </body>
 </html>

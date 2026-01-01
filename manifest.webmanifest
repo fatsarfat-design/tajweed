@@ -1,8 +1,9 @@
 {
   "name": "Таджвид — учебное приложение",
   "short_name": "Таджвид",
-  "start_url": "./",
+  "start_url": "./?source=pwa",
   "display": "standalone",
-  "background_color": "#070b14",
-  "theme_color": "#0b1220"
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": []
 }
