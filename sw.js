@@ -1,35 +1,65 @@
-/* v20 */
-const CACHE = "tajweed-cache-v20";
-const ASSETS = ["./","./index.html","./manifest.webmanifest","./sw.js"];
 
-self.addEventListener("install",(event)=>{
-  event.waitUntil(caches.open(CACHE).then((c)=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
-});
+// tajweed service worker (safe update) — v21
+const CACHE = "tajweed-v21";
+const CORE = [
+  "./",
+  "./index.html?v=21",
+  "./styles.css?v=21",
+  "./data.js?v=21",
+  "./tests.js?v=21",
+  "./app.js?v=21",
+  "./manifest.json?v=21"
+];
 
-self.addEventListener("activate",(event)=>{
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.keys().then((keys)=>Promise.all(keys.map((k)=>k!==CACHE?caches.delete(k):null))).then(()=>self.clients.claim())
+    caches.open(CACHE).then(cache => cache.addAll(CORE)).catch(()=>{})
   );
 });
 
-// Network-first for HTML to avoid stale empty UI after updates
-self.addEventListener("fetch",(event)=>{
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => (k !== CACHE ? caches.delete(k) : Promise.resolve())));
+    await self.clients.claim();
+  })());
+});
+
+// Network-first for navigation to avoid stale "empty app".
+// Cache-first for static assets (with fallback to network).
+self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
-  if(req.method!=="GET") return;
-  if(url.origin !== self.location.origin) return;
 
-  const accept = req.headers.get("accept")||"";
-  const isHTML = accept.includes("text/html") || url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
-  if(isHTML){
-    event.respondWith(
-      fetch(req).then((res)=>{ const copy=res.clone(); caches.open(CACHE).then((c)=>c.put(req,copy)); return res; })
-        .catch(()=>caches.match(req).then((r)=>r||caches.match("./index.html")))
-    );
+  if (req.mode === "navigate") {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req);
+        const cache = await caches.open(CACHE);
+        cache.put("./", fresh.clone());
+        return fresh;
+      } catch (e) {
+        const cached = await caches.match("./");
+        return cached || caches.match("./index.html?v=21");
+      }
+    })());
     return;
   }
 
-  event.respondWith(
-    caches.match(req).then((cached)=>cached || fetch(req).then((res)=>{ const copy=res.clone(); caches.open(CACHE).then((c)=>c.put(req,copy)); return res; }))
-  );
+  // same-origin only
+  if (url.origin === location.origin) {
+    event.respondWith((async () => {
+      const cached = await caches.match(req);
+      if (cached) return cached;
+      try {
+        const res = await fetch(req);
+        const cache = await caches.open(CACHE);
+        cache.put(req, res.clone());
+        return res;
+      } catch (e) {
+        return cached || new Response("Offline", { status: 503 });
+      }
+    })());
+  }
 });
