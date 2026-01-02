@@ -4,7 +4,7 @@
   const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
 
   const STORAGE = {
-    settings: "tajweed_settings_v21",
+    settings: "tajweed_settings_v22",
     progress: "tajweed_progress_v21",
     notesPrefix: "tajweed_note_v21_"
   };
@@ -14,7 +14,8 @@
     fontSize: 16,
     arabicSize: 22,
     arabicFont: "Noto Naskh Arabic",
-    background: "none"       // none | mosaic | stars | arabesque
+    background: "none",      // none | mosaic | stars | arabesque | photo
+    bgPhoto: ""            // dataURL or https://... for photo background
   };
 
   const BG = {
@@ -56,10 +57,18 @@
       root.style.setProperty("--accent2", "#7dd3fc");
       root.style.setProperty("--border", "rgba(255,255,255,.08)");
     }
-    const b = BG[s.background] || BG.none;
+    let b;
+    if(s.background === "photo"){
+      const src = (s.bgPhoto || "").trim();
+      const safe = src.replace(/"/g, "%22");
+      b = { img: src ? `url("${safe}")` : "none", repeat: "no-repeat", size: "cover", pos: "center" };
+    } else {
+      b = BG[s.background] || BG.none;
+    }
     root.style.setProperty("--bg-img", b.img);
     root.style.setProperty("--bg-repeat", b.repeat);
     root.style.setProperty("--bg-size", b.size);
+    root.style.setProperty("--bg-pos", b.pos || "center");
   }
 
   function loadProgress(){
@@ -459,6 +468,18 @@
         <h3 style="margin:0 0 6px;">Настройки</h3>
         <div class="small">Все настройки сохраняются и применяются сразу.</div>
 
+        <div class="row" id="bgPhotoRow" style="display:none;">
+          <label>Фото фона</label>
+          <div class="col">
+            <input id="bgPhotoFile" type="file" accept="image/*">
+            <input id="bgPhotoUrl" type="url" placeholder="или вставь ссылку на картинку (https://...)">
+            <div class="small" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <button class="btn ghost" id="bgPhotoClear" type="button">Убрать фото</button>
+              <span>Фото сохраняется на этом устройстве.</span>
+            </div>
+          </div>
+        </div>
+
         <div class="hr"></div>
 
         <div class="row">
@@ -497,6 +518,7 @@
             <option value="mosaic">Мозаика</option>
             <option value="stars">Звёзды</option>
             <option value="arabesque">Арабески</option>
+            <option value="photo">Фото (своё)</option>
           </select>
         </div>
 
@@ -515,6 +537,14 @@
     $("#setArFont").value = settings.arabicFont;
     $("#setBg").value = settings.background;
 
+    $("#bgPhotoUrl").value = settings.bgPhoto || "";
+
+    const syncBgPhotoUI = ()=>{
+      const isPhoto = settings.background === "photo";
+      $("#bgPhotoRow").style.display = isPhoto ? "" : "none";
+    };
+    syncBgPhotoUI();
+
     const updateLabels = () => {
       $("#fsVal").textContent = settings.fontSize + "px";
       $("#arVal").textContent = settings.arabicSize + "px";
@@ -525,7 +555,44 @@
     $("#setFs").oninput = (e)=>{ settings.fontSize = Number(e.target.value); saveSettings(settings); applySettings(settings); updateLabels(); };
     $("#setArFs").oninput = (e)=>{ settings.arabicSize = Number(e.target.value); saveSettings(settings); applySettings(settings); updateLabels(); };
     $("#setArFont").onchange = (e)=>{ settings.arabicFont = e.target.value; saveSettings(settings); applySettings(settings); };
-    $("#setBg").onchange = (e)=>{ settings.background = e.target.value; saveSettings(settings); applySettings(settings); };
+    $("#setBg").onchange = (e)=>{ settings.background = e.target.value; saveSettings(settings); applySettings(settings); syncBgPhotoUI(); };
+
+    // Фото фона
+    $("#bgPhotoFile").onchange = (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        settings.bgPhoto = String(r.result || "");
+        $("#bgPhotoUrl").value = "";
+        settings.background = "photo";
+        $("#setBg").value = "photo";
+        saveSettings(settings);
+        applySettings(settings);
+        syncBgPhotoUI();
+      };
+      r.readAsDataURL(f);
+    };
+
+    $("#bgPhotoUrl").onchange = (e)=>{
+      const v = (e.target.value || "").trim();
+      if(!v) return;
+      settings.bgPhoto = v;
+      settings.background = "photo";
+      $("#setBg").value = "photo";
+      saveSettings(settings);
+      applySettings(settings);
+      syncBgPhotoUI();
+    };
+
+    $("#bgPhotoClear").onclick = ()=>{
+      settings.bgPhoto = "";
+      $("#bgPhotoUrl").value = "";
+      $("#bgPhotoFile").value = "";
+      saveSettings(settings);
+      applySettings(settings);
+    };
+
 
     $("#resetAll").onclick = () => {
       if(!confirm("Точно сбросить прогресс и удалить все заметки на этом устройстве?")) return;
